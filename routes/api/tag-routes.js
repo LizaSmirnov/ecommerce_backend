@@ -46,20 +46,57 @@ router.post('/', async (req, res) => {
 }),
 
 
-// router.put('/:id', async (req, res) => {
-//   try {
-//     const updateTag = await ProductTag.update(rew.body, {
-//       where: {
-//         id: req.params.id,
-//       }
-//     }
-//   }
-// });
-
-  // update a tag's name by its `id` value
-
-router.delete('/:id', (req, res) => {
-  // delete on tag by its `id` value
+router.put('/:id', async (req, res) => {
+ 
+  ProductTag.update(req.body, {
+      where: {
+        id: req.params.id,
+     }
+    })
+    .then((tag) =>{
+      return ProductTag.findAll({where : {tag_id: req.params.id}});
+    })
+    .then((productTags) => {
+      const productTagIds = productTag.map(({product_id}) => product_id);
+      const newProductTags = req.body.product_id
+      .filter((product_id) => !productTagsIds.includes(product_id))
+      .map((product_id) => {
+        return {
+          tag_id:req.params.id,
+          product_id,
+        };
+      })
+        const productTagsRemove = productTags
+          .filter(({ product_id }) => !req.body.product_id.includes(product_id))
+          .map(({ id }) => id);
+          
+          return Promise.all([ProductTag.destroy({ where: { id: productTagsToRemove } }),
+          ProductTag.bulkCreate(newProductTags),
+      ]);
+    })
+    .then((updatedProductTags) => res.json(updatedProductTags))
+    .catch((err) => {
+// console.log(err);
+    res.status(400).json(err);
+  });
 });
+
+router.delete('/:id', async (req, res) => {
+try {
+  const { id } = req.params
+  const deletedTag = await Tag.destroy({
+    where: {
+      id: id
+    }
+  })
+
+  if (!deletedTag) {
+    res.status(404).json({ message: `No tag found with id${id}` })
+  }
+    res.status(200).json({ message: `Tag with id${id} successfully deleted!` })
+    } catch (err) {
+      res.status(400).json(err)
+    }
+    });
 
 module.exports = router;

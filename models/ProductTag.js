@@ -8,7 +8,7 @@ class ProductTag extends Model {}
 ProductTag.init(
   {
     id: {
-      type: DataTypes.INTENGER,
+      type: DataTypes.INTEGER,
       primaryKey: true,
       allowNull: false, 
       autoIncrement: true,
@@ -23,7 +23,7 @@ ProductTag.init(
     },
     
     tag_id: {
-      type: DataTypes.INTENGER,
+      type: DataTypes.INTEGER,
       reference: {
       model: 'tag',
       key: 'id'
