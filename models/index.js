@@ -17,6 +17,7 @@ Category.hasMany(Product, { //can have many products so we use hasMany
   onDelete: 'CASCADE'   
 });
 
+
 // Products belongToMany Tags (through ProductTag)
 
 // Tags belongToMany Products (through ProductTag)
