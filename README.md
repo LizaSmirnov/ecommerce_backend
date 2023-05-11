@@ -23,7 +23,7 @@ Users can create new, update, delete and see current data for their site using f
 Since this is all backend code you will need to have Postman/Insomnia installed to make these requests.
 
 ## Video
-
+https://drive.google.com/file/d/1XN-tf7jij5HLt-4mZRAmfLyqS39xzOVu/view
 
 ## Installation
 Please download the following on your command line "npm i dotenv express mysql2 nodemon sequelize". You will also need to install Postman to be able to make your requests.
