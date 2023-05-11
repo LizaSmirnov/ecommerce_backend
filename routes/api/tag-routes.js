@@ -6,9 +6,9 @@ const { Tag, Product, ProductTag } = require('../../models');
 // find all tags
 router.get('/', async (req, res) => {
   try {
-    const tagData = await ProductTag.findAll({
+    const tagData = await Tag.findAll({
       include: [{model: Product}],
-    })
+    });
     res.status(200).json(tagData);
   } catch (err) {
     res.status(500).json(err);
@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try{
-    const tagData = await ProductTag.findByPk(req.params.id, {
+    const tagData = await Tag.findByPk(req.params.id, {
       include: [{model: Product}],
     })
     if (!tagData) {
@@ -32,27 +32,38 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  try {
-    const tagData = await ProductTag.create({
-      tag_id:req.params.tag_id,
-      tag_name:req.params.tag_name,
-    });
-    res.status(200).json(tagData);
-  } catch (err) {
+  Tag.create(req.body)
+  .then((tag) => {
+    // if there's product tags, we need to create pairings to bulk create in the ProductTag model
+    if (req.body.productIds.length) {
+      const productTagIdArr = req.body.productIds.map((product_id) => {
+        return {
+          tag_id: tag.id,
+          product_id,
+        };
+      });
+      return ProductTag.bulkCreate(productTagIdArr);
+    }
+    // if no product tags, just respond
+    res.status(200).json(tag);
+  })
+  .then((productTagIds) => res.status(200).json(productTagIds))
+  .catch((err) => {
+    console.log(err);
     res.status(400).json(err);
-  }
-}),
+  });
+});
 
 
 router.put('/:id', async (req, res) => {
  
-  ProductTag.update(req.body, {
+  Tag.update(req.body, {
       where: {
         id: req.params.id,
      }
     })
     .then((tag) =>{
-      return ProductTag.findAll({where : {tag_id: req.params.id}});
+      return Tag.findAll({where : {id: req.params.id}});
     })
     .then((productTags) => {
       const productTagIds = productTag.map(({product_id}) => product_id);
@@ -60,7 +71,7 @@ router.put('/:id', async (req, res) => {
       .filter((product_id) => !productTagsIds.includes(product_id))
       .map((product_id) => {
         return {
-          tag_id:req.params.id,
+          id:req.params.id,
           product_id,
         };
       })
@@ -69,8 +80,8 @@ router.put('/:id', async (req, res) => {
           .filter(({ product_id }) => !req.body.product_id.includes(product_id))
           .map(({ id }) => id);
       //find ones need to destroy and create to complete update  
-        return Promise.all([ProductTag.destroy({ where: { id: productTagsToRemove } }),
-        ProductTag.bulkCreate(newProductTags),
+        return Promise.all([Tag.destroy({ where: { id: productTagsToRemove } }),
+        Tag.bulkCreate(newProductTags),
       ]);
     })
     .then((updatedProductTags) => res.json(updatedProductTags))

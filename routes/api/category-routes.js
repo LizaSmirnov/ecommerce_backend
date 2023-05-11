@@ -63,14 +63,15 @@ router.delete('/:id', async (req, res) => {
         id: req.params.id
       }
     });
-  if (categoryData) {
-    res.status(200).json({message: 'Category successfully deleted!'})
-  } else {
+  if (!categoryData) {
     res.status(500).json({message: 'Category not deleted'})
+    return;
   }
-  } catch (err){
-    res.status(500).json(err)
-  }
-});
+    res.status(200).json({message: 'Category successfully deleted!'})
+} catch (err){
+  res.status(500).json(err);
+}
+});  
+
 
 module.exports = router;
